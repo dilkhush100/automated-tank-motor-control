@@ -1,5 +1,5 @@
 # automated-tank-motor-control
-Automated Tank Motor Control System
+## Automated Tank Motor Control System
 
 This project addresses the challenges of managing municipal water supply for households. Tired of manually turning on and off the water pump to fill your tank? Say goodbye to the hassle with our Automated Tank Motor Control System!
 
