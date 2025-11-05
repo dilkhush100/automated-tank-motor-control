@@ -2,6 +2,20 @@
 
 #include <ESP8266WiFi.h>
 #include <espnow.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include "images.h"
+
+// OLED display size
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+
+// OLED reset pin (set to -1 if not used)
+#define OLED_RESET    -1
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
 
 
 // REPLACE WITH THE MAC Address of your receiver 
@@ -80,17 +94,38 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
  }
 
 }
+void displayOLEDMessage(String message)
+{
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.println(message);
+  display.display();
+}
 
 void setup() {
+        if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x64
+         display.println("startup");
+        for(;;); // Don't proceed, loop forever
+    }
+    display.clearDisplay();
+    // Draw bitmap image
+    display.drawBitmap(0, 0, my_image, 128, 64, SSD1306_WHITE);
+    display.display();
+    delay(4000);
+
   // Init Serial Monitor
   Serial.begin(9600);
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
+  displayOLEDMessage("wifi mode STA");
   WiFi.disconnect();
 
   // Init ESP-NOW
   if (esp_now_init() != 0) {
     Serial.println("Error initializing ESP-NOW");
+    displayOLEDMessage("Error init Esp-now");
     return;
   }
 
