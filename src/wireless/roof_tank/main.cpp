@@ -4,7 +4,6 @@
 #include <espnow.h>
 
 // REPLACE WITH RECEIVER MAC Address
-uint8_t receiver_master[] = {0xA8,0x48,0xFA,0XFF,0xEF,0x77};
 uint8_t receiver_motor[] = {0xE8,0x9F,0x6D,0x94,0x0A,0x11};
 // Structure example to send data
 // Must match the sender structure
@@ -51,7 +50,6 @@ void setup() {
   esp_now_register_send_cb(OnDataSent);
   
   // Register peer
-  esp_now_add_peer(receiver_master, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
   esp_now_add_peer(receiver_motor, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
 }
  
@@ -66,7 +64,6 @@ void loop() {
 
 
     // Send message via ESP-NOW
-    esp_now_send(receiver_master, (uint8_t *) &myData, sizeof(myData));
     esp_now_send(receiver_motor, (uint8_t *) &myData, sizeof(myData));
     lastTime = millis();
   }

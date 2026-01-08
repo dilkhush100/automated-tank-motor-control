@@ -19,7 +19,6 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
 // REPLACE WITH THE MAC Address of your receiver 
-uint8_t master_MAC[] = {0xA8,0x48,0xFA,0XFF,0xEF,0x77};
 uint8_t tank_MAC[] = {0xE8,0x9F,0x6D,0x94,0x0A,0x11};
 
 unsigned long lastTime = 0;  
@@ -37,27 +36,6 @@ typedef struct struct_message_tank {
 
 // Create a struct_message called DHTReadings to hold sensor readings
 messageFromTank incomingTankReading;
-
-typedef struct struct_message_to_master {
-    int id;
-    bool motor1;
-    bool motor2;
-    int level;
-    float lPm;
-    float totalL;
-} messagetoMaster;
-
-messagetoMaster outgoingMotorReading;
-
-typedef struct struct_message_from_master {
-    int id;
-    bool motor1;
-    bool motor2;
-} messageFromMaster;
-
-// Create a struct_message called DHTReadings to hold sensor readings
-messageFromMaster incomingMasterReading;
-
 
 // Create a struct_message to hold
 
@@ -78,18 +56,12 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   //8 byte length for tank 
   //8 bytes for master to motor
   //20 bytes for motor
- if(*incomingData==3)
- {
-   memcpy(&incomingMasterReading, incomingData, sizeof(incomingMasterReading));
-   Serial.println(incomingMasterReading.id);
-   Serial.println(incomingMasterReading.motor1);
-   Serial.println(incomingMasterReading.motor2);
- }
  if(*incomingData==1)
   {
    memcpy(&incomingTankReading, incomingData, sizeof(incomingTankReading));
    Serial.println(incomingTankReading.id);
    Serial.println(incomingTankReading.level);
+   displayOLEDMessage("Tank ID: " + String(incomingTankReading.id) + " Level: " + String(incomingTankReading.level) + "%");
    
  }
 
@@ -135,24 +107,16 @@ void setup() {
   // Once ESPNow is successfully Init, we will register for Send CB to
   // get the status of Trasnmitted packet
   esp_now_register_send_cb(OnDataSent);
-  
   // Register peer
-  esp_now_add_peer(master_MAC, ESP_NOW_ROLE_COMBO, 1, NULL, 0);
   esp_now_add_peer(tank_MAC, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
   // Register for a callback function that will be called when data is received
   esp_now_register_recv_cb(OnDataRecv);
 }
  
 void loop() {
-  if ((millis() - lastTime) > timerDelay) {
-    // save the last time you updated the DHT values
-    outgoingMotorReading.motor1=true;
-    outgoingMotorReading.motor2=false;
-    outgoingMotorReading.id=2;
-    outgoingMotorReading.level=88;
-    outgoingMotorReading.lPm=10.1;
-    outgoingMotorReading.totalL=101.0;    
-    esp_now_send(master_MAC, (uint8_t *) &outgoingMotorReading, sizeof(outgoingMotorReading));
-    lastTime = millis();
-  }
+  // if ((millis() - lastTime) > timerDelay) {
+  //   // save the last time you updated the DHT values
+  //   displayOLEDMessage("wifi mode STA");
+  //   lastTime = millis();
+  // }
 }
